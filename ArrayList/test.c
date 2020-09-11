@@ -62,6 +62,9 @@ void test_arrayList()
     printf("\n\t\t\t\t================= Test removing ================= \n\n");
     printf("\n\t\t\t\t------------------------------------------------- \n\n");
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
+
+    
+
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
 
     delete_arrayList(list);

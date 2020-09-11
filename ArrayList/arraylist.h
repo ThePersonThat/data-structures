@@ -35,7 +35,7 @@ _Bool arrayList_compare_list(ArrayList* first_list, ArrayList* second_list); // 
 void* arrayList_get_element(ArrayList* list, int index); // to get element by index
 
 void arrayList_remove_by_index(ArrayList* list, int index); // remove item by index 
-void arrayList_remove_if(ArrayList* list, _Bool (condition) (void *)); // remove item if it fits the condition
+void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition) (void *, void *)); // remove item if it fits the condition
 
 static void allocate_item(ArrayList* list); // allocate memory for new item
 static void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *)); // merge sort

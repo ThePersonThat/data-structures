@@ -158,11 +158,11 @@ void arrayList_remove_by_index(ArrayList* list, int index)
     list->size--;
 }
 
-void arrayList_remove_if(ArrayList* list, _Bool (condition) (void *))
+void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition) (void *, void *))
 {
     for(int i = 0; i < list->size; i++)
     {
-        if(condition(list->data[i]))
+        if(condition(list->data[i], item_condition))
             arrayList_remove_by_index(list, i);
     }
 }

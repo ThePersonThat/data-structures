@@ -63,8 +63,9 @@ void test_arrayList()
     printf("\n\t\t\t\t------------------------------------------------- \n\n");
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
 
-    
+    ArrayList* test_insert = create_arrayList();
 
+    delete_arrayList(test_arrayList);
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
 
     delete_arrayList(list);

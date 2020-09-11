@@ -2,11 +2,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <stdlib.h>
 
 
 _Bool condition(void* item, void* list)
 {
     return arrayList_contains(list, item);
+}
+
+_Bool compare(void* one, void* two)
+{
+    return (int)one < (int)two ? true : false;
 }
 
 void test_arrayList()
@@ -24,6 +30,8 @@ void test_arrayList()
 
         arrayList_add(test_remove, (void *)i);
     }
+
+    ArrayList* clone_list = arrayList_clone(list);
 
     printf("Created an array from 0 to 15: %s\n", arrayList_to_string(list, " %d ", buffer));
 
@@ -62,14 +70,39 @@ void test_arrayList()
     printf("\n\t\t\t\t================= Test removing ================= \n\n");
     printf("\n\t\t\t\t------------------------------------------------- \n\n");
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
-
     ArrayList* test_insert = create_arrayList();
 
-    delete_arrayList(test_arrayList);
-    printf("\n\t\t\t\t================= Test insertion ================ \n\n");
+    for(int i = 0; i < 10; i++)
+    {
+        arrayList_add_by_index(test_insert, i, (void *)i);
+    }
 
+    printf("Created a new array from 0 to 10: %s\n", arrayList_to_string(test_insert, " %d ", buffer));
+
+    arrayList_insert_list(list, test_insert, 0);
+
+    printf("Inserted a new array to the main array at 0 index: %s\n", arrayList_to_string(list, " %d ", buffer));
+
+    assert(arrayList_compare_list(clone_list, list) && "Inserting an array was not passed successfully");
+
+    delete_arrayList(test_insert);
+    printf("\n\t\t\t\t================= Test insertion ================ \n\n");
+    printf("\n\t\t\t\t------------------------------------------------- \n\n");
+    printf("\n\t\t\t\t=================   Other test   ================ \n\n");
+
+    for (int i = 0; i < arrayList_get_size(list); i++)
+    {
+        arrayList_set(list, i, rand() % 50);
+    }
+    printf("Setted random items in array: %s\n", arrayList_to_string(list, " %d ", buffer));
+
+    arrayList_sort(list, compare);
+
+    printf("Array sorted: %s\n", arrayList_to_string(list, " %d ", buffer));
+
+    printf("\n\t\t\t\t=================   Other test   ================ \n\n");
     delete_arrayList(list);
-    
+    delete_arrayList(clone_list);
 }
 
 int main()

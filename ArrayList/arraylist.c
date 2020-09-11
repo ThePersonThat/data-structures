@@ -126,13 +126,15 @@ void arrayList_change_capacity(ArrayList* list, int capacity)
 
 void arrayList_insert_list(ArrayList* dest_list, ArrayList* source_list, int index)
 {
+    if(source_list->size <= 0)
+        return;
+        
     CHECK_OUT_OF_BOUNDS(index, dest_list->size);
         
     if(source_list->size + dest_list->size > dest_list->capacity)
         arrayList_change_capacity(dest_list, (source_list->size + dest_list->size) * 2);
 
     memmove(dest_list->data + index + source_list->size, dest_list->data + index, sizeof(dest_list->data) * (dest_list->size - index));
-    
     for(int i = index, j = 0; i < index + source_list->size; i++, j++)
     {
         dest_list->data[i] = source_list->data[j];

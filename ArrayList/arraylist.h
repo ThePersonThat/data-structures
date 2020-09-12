@@ -4,9 +4,9 @@
 
 
 typedef struct {
+    void** data; 
     unsigned int size;
     unsigned int capacity;
-    void** data; 
 } ArrayList;
 
 
@@ -41,7 +41,7 @@ static void allocate_item(ArrayList* list); // allocate memory for new item
 static void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *)); // merge sort
 static void merge(void* arr[], int start, int mid, int end, _Bool (compare) (void*, void*)); // merge sort
 
-inline void arrayList_removeAll(ArrayList* list); // remove all the item from list
-inline unsigned int arrayList_get_size(ArrayList* list); // get list size 
-inline unsigned int arrayList_get_capacity(ArrayList* list); // get list capacity 
-inline _Bool arrayList_is_empty(ArrayList* list); // returns true if this arrayList contains no elements
+extern void arrayList_removeAll(ArrayList* list); // remove all the item from list
+extern unsigned int arrayList_get_size(ArrayList* list); // get list size 
+extern unsigned int arrayList_get_capacity(ArrayList* list); // get list capacity 
+extern _Bool arrayList_is_empty(ArrayList* list); // returns true if this arrayList contains no elements

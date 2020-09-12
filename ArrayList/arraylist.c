@@ -260,22 +260,22 @@ void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *))
     }
 }
 
-extern inline void arrayList_removeAll(ArrayList* list)
+inline void arrayList_removeAll(ArrayList* list)
 {
     list->size = 0;
 }
 
-extern inline unsigned int arrayList_get_size(ArrayList* list)
+inline unsigned int arrayList_get_size(ArrayList* list)
 {
     return list->size;
 }
 
-extern inline unsigned int arrayList_get_capacity(ArrayList* list)
+inline unsigned int arrayList_get_capacity(ArrayList* list)
 {
     return list->capacity;
 }
 
-extern inline _Bool arrayList_is_empty(ArrayList* list)
+inline _Bool arrayList_is_empty(ArrayList* list)
 {
     return list->size == 0 ? true : false;
 }

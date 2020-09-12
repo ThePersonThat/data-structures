@@ -94,7 +94,7 @@ void arrayList_set(ArrayList* list, int index, void* item)
     list->data[index] = item;
 }
 
-bool arrayList_contains(ArrayList* list, void* item)
+_Bool arrayList_contains(ArrayList* list, void* item)
 {
     for(int i = 0; i < list->size; i++)
     {

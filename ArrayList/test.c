@@ -42,7 +42,7 @@ void test_arrayList()
     }
 
     printf("\n\t\t\t\t================= Test removing ================= \n\n");
-    printf("An array after removing items by index (removing index from 5 to 10): %s\n", arrayList_to_string(list, " %d ", buffer));
+    printf("An array after removing items by index (removing index from 5 to 9): %s\n", arrayList_to_string(list, " %d ", buffer));
     assert(arrayList_compare_list(list, test_remove) && "Removing by index was not passed successfully");
 
     arrayList_removeAll(test_remove);
@@ -77,11 +77,11 @@ void test_arrayList()
         arrayList_add_by_index(test_insert, i, (void *)i);
     }
 
-    printf("Created a new array from 0 to 10: %s\n", arrayList_to_string(test_insert, " %d ", buffer));
+    printf("Created a new array from 0 to 9: %s\n", arrayList_to_string(test_insert, " %d ", buffer));
 
     arrayList_insert_list(list, test_insert, 0);
 
-    printf("Inserted a new array to the main array at 0 index: %s\n", arrayList_to_string(list, " %d ", buffer));
+    printf("Inserted a new array into the main array at index 0: %s\n", arrayList_to_string(list, " %d ", buffer));
 
     assert(arrayList_compare_list(clone_list, list) && "Inserting an array was not passed successfully");
 
@@ -110,4 +110,6 @@ int main()
     printf("Test is starting...\n\n");
     test_arrayList();
     printf("\nThe test was passed successfully\n");
+
+    return 0;
 }

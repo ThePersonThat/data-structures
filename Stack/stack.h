@@ -17,6 +17,7 @@ void* stack_pop(Stack* stack); // get item from stack
 Stack* stack_clone(Stack* stack); // create copy stack
 char* stack_to_string(Stack* stack, const char* format, char* buffer);
 
+_Bool stack_compare(Stack* first, Stack* second);
 void stack_change_capacity(Stack* stack, unsigned int capacity); // realloc stack capacity 
 
 static Stack* setup_stack(Stack* stack, unsigned int capacity, _Bool auto_growing);

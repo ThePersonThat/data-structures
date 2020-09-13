@@ -94,6 +94,22 @@ char* stack_to_string(Stack* stack, const char* format, char* buffer)
     return buffer;
 }
 
+_Bool stack_compare(Stack* first, Stack* second)
+{
+    if(first->size != second->size)
+        return false;
+
+    for(int i = 0; i < first->size; i++)
+    {
+        if(first->array_stack[i] == second->array_stack[i])
+            continue;
+        else 
+            return false;
+    }
+
+    return true;
+}
+
 
 void stack_change_capacity(Stack* stack, unsigned int capacity)
 {
@@ -103,7 +119,7 @@ void stack_change_capacity(Stack* stack, unsigned int capacity)
         return;
     }
 
-    stack->array_stack = realloc(stack, capacity);
+    stack->array_stack = realloc(stack->array_stack, sizeof(void *) * capacity);
     stack->capacity = capacity;
 }
 

@@ -23,7 +23,7 @@ void arrayList_change_capacity(ArrayList* list, int capacity); // realocate capa
 
 ArrayList* arrayList_clone(ArrayList* list); // clone arrayList
 
-char* arrayList_to_string(ArrayList* list, const char* format, char* buffer); // return returns printed items
+char* arrayList_to_string(ArrayList* list, const char* format, char* buffer); // return printed items
 
 void arrayList_sort(ArrayList* list, _Bool (compare) (void *, void *)); // sort arrayList with comparator 
 

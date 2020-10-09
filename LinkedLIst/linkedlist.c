@@ -8,7 +8,7 @@
     {                                                     \
         fprintf(stderr, "Error! Index out of bounds\n");  \
         return;                                           \
-    }    
+    }   
 
 _Bool linkedList_contain(LinkedList * list, void* item)
 {
@@ -40,12 +40,27 @@ void linkedList_insert_list(LinkedList* dest_list, LinkedList* source_list, unsi
 
     LinkedNode* temp;
 
-    if (index == 0)
+    for (int i = 0; i < source_list->size; i++)
     {
-        
-
-     
+        linkedList_add_by_index(dest_list, index, linkedList_get(source_list, i));
+        index++;
     }
+}
+
+char* linkedList_to_string(LinkedList* list, const char* format, char* buffer)
+{
+    sprintf(buffer, "LinkedList: [ ");
+    int offset = strlen("LinkedList: [ ");
+
+    for (int i = 0; i < list->size; i++)
+    {
+        sprintf(buffer + offset, format, linkedList_get(list, i));
+        offset += strlen(buffer) - offset;
+    }
+
+    sprintf(buffer + offset, " ]\0");
+
+    return buffer;
 }
 
 inline void linkedList_set_first(LinkedList* list, void* item)
@@ -97,57 +112,67 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
     if (index == 0)
     {
         temp = list->head;
-        if(list->head->next != NULL)
-            list->head = list->head->next;
 
-        list->head->prev = NULL;
         list->size--;
-       
+
+        if (list->head->next == NULL)
+        {
+            free(temp);
+
+            list->tail = list->head = NULL;
+            return;
+        }
+
+        list->head = list->head->next;
+        list->head->prev = NULL;
         free(temp);
+
         return;
     }
 
     if (index == list->size - 1)
     {
         temp = list->tail;
-        list->tail = list->tail->prev;
-        list->tail->next = NULL;
+
         list->size--;
 
+        if (list->tail->prev == NULL)
+        {
+            free(temp);
+
+            list->tail = list->head = NULL;
+            return;
+        }
+       
+        list->tail = list->tail->prev;
+        list->tail->next = NULL;
         free(temp);
+
         return;
     }
 
-    LinkedNode* temp2;
+    LinkedNode* delete_node;
 
-    if (list->size / 2 > index)
-    {
-        temp = list->head;
+    temp = list->head;
 
-        for (int i = 0; i < index; i++)
-            temp = temp->next;
-    }
-    else
-    {
-        temp = list->tail;
+    for (int i = 0; i < index - 1; i++)
+        temp = temp->next;
 
-        for (int i = list->size; i > index + 1; i--)
-            temp = temp->prev;
-    }
+    delete_node = temp->next;
+    temp->next = delete_node->next;
 
-    temp2 = temp->next;
-    temp2->prev = temp->prev;
-    temp->prev->next = temp2;
+    temp = delete_node->next;
 
-    free(temp);
-   
+    temp->prev = delete_node->prev;
+
+    free(delete_node);
     list->size--;
 }
 
 void linkedList_remove_All(LinkedList* list)
 {
-    while(list->size)
-        linkedList_remove_last(list);
+    while (list->size)
+        linkedList_remove_first(list);
 }
 
 void linkedList_remove_first(LinkedList* list)
@@ -170,52 +195,63 @@ void linkedList_add_by_index(LinkedList* list, unsigned int index, void* item)
 
     if (index == 0)
     {
+
+        if (list->size == 0)
+        {
+            node->next = NULL;
+            node->prev = NULL;
+            list->size++;
+
+            list->head = list->tail = node;
+
+            return;
+        }
+
         node->next = list->head;
         node->prev = NULL;
 
-        list->size++;
+        list->head->prev = node;
         list->head = node;
 
-        if (list->tail == NULL)
-            list->tail = node;
+        list->size++;
 
         return;
     }
 
     if (index == list->size)
     {
+        list->size++;
+
         node->next = NULL;
         node->prev = list->tail;
 
-        list->size++;
         list->tail->next = node;
-        list->tail = node;
+        list->tail = list->tail->next;
 
         return;
     }
 
-    LinkedNode* temp;
+    LinkedNode* temp = list->head;
 
-    if (list->size / 2 > index)
-    {
-        temp = list->head;
+    for (int i = 0; i < index - 1; i++)
+        temp = temp->next;
 
-        for (int i = 0; i < index - 1; i++)
-            temp = temp->next;
-    }
-    else
-    {
-        temp = list->tail;
-
-        for (int i = list->size; i > index; i--)
-            temp = temp->prev;
-    }
-
-    node->next = temp->next;
     node->prev = temp;
-    temp->next = node;
+    node->next = temp->next;
 
+    temp->next = node;
     list->size++;
+}
+
+
+LinkedList* linkedList_clone(LinkedList* list)
+{
+    LinkedList* clone_list = create_linkedList();
+
+    for (int i = 0; i < list->size; i++)
+        linkedList_add_last(clone_list, linkedList_get(list, i));
+
+    return clone_list;
 }
 
 _Bool linkedList_is_empty(LinkedList* list)

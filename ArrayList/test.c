@@ -94,6 +94,7 @@ void test_arrayList()
     {
         arrayList_set(list, i, rand() % 50);
     }
+
     printf("Setted random items in array: %s\n", arrayList_to_string(list, " %d ", buffer));
 
     arrayList_sort(list, compare);
@@ -110,6 +111,6 @@ int main()
     printf("Test is starting...\n\n");
     test_arrayList();
     printf("\nThe test was passed successfully\n");
-
+    
     return 0;
 }

@@ -6,7 +6,6 @@
 
 #define INITIAL_DEFAULT_SIZE 16
 
-
 Stack* setup_stack(Stack* stack, unsigned int capacity, _Bool auto_growing)
 {
     if(stack == NULL)
@@ -15,7 +14,7 @@ Stack* setup_stack(Stack* stack, unsigned int capacity, _Bool auto_growing)
         return NULL;
     }
     
-    stack->size = 0;
+    stack->size = 0; 
     stack->capacity = capacity;
     stack->auto_growing = auto_growing;
     stack->array_stack = malloc(sizeof(void *) * capacity);
@@ -56,7 +55,7 @@ void stack_push(Stack* stack, void* item)
         }
     }
 
-    stack->array_stack[stack->size++] = item;
+    stack->array_stack[stack->size] = item;
 }
 
 void* stack_pop(Stack* stack)
@@ -128,7 +127,6 @@ void delete_stack(Stack* stack)
     free(stack->array_stack);
     free(stack);
 }
-
 
 inline void* stack_peek(Stack* stack)
 {

@@ -2,6 +2,16 @@
 #define fori_arrayList(item, index, list)  \
     for(item = list->data[index]; index < list->size; item = list->data[++index])
 
+#define foreach_arrayList(list, __VA_ARGS__)                \  
+{                                                           \
+    int i = 0;                                              \
+    while(i < list->size)                                   \
+    {                                                       \
+        __VA_ARGS__ = list->data[i];                        \
+        i++;                                                \
+    
+                                        
+#define foreach_end }}
 
 typedef struct {
     void** data; 

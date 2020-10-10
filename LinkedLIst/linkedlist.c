@@ -47,6 +47,17 @@ void linkedList_insert_list(LinkedList* dest_list, LinkedList* source_list, unsi
     }
 }
 
+void linkedList_remove_if(LinkedList* list, void* item_condition, _Bool (condition)(void*, void*))
+{
+    LinkedNode* temp = list->head;
+
+    for (int i = 0; i < list->size; i++)
+    {
+        if (condition(linkedList_get(list, i), item_condition))
+            linkedList_remove_by_index(list, i);
+    }
+}
+
 char* linkedList_to_string(LinkedList* list, const char* format, char* buffer)
 {
     sprintf(buffer, "LinkedList: [ ");
@@ -98,6 +109,54 @@ void linkedList_set(LinkedList* list, unsigned int index, void* item)
     }
 
     temp->data = item;
+}
+
+void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*))
+{
+    mergeSort(list, 0, list->size - 1, compare);
+}
+
+void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
+{
+    int start2 = mid + 1;
+
+    if (compare(linkedList_get(list, mid), linkedList_get(list, start2))) {
+        return;
+    }
+
+    while (start <= mid && start2 <= end) {
+
+        if (compare(linkedList_get(list, start), linkedList_get(list, start2))) {
+            start++;
+        }
+        else {
+            void* value = linkedList_get(list, start2);
+            int index = start2;
+
+            while (index != start) {
+                linkedList_set(list, index, linkedList_get(list, index - 1));
+                index--;
+            }
+         
+            linkedList_set(list, start, value);
+
+            start++;
+            mid++;
+            start2++;
+        }
+    }
+}
+
+void mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
+{
+    if (l < r) {
+        int m = l + (r - l) / 2;
+
+        mergeSort(list, l, m, compare);
+        mergeSort(list, m + 1, r, compare);
+
+        merge(list, l, m, r, compare);
+    }
 }
 
 void linkedList_remove_by_index(LinkedList* list, unsigned int index)

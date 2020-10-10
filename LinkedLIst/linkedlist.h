@@ -31,9 +31,11 @@ extern void LinkedList_set_last(LinkedList* list, void* item);
 void linkedList_remove_by_index(LinkedList* list, unsigned int index);
 void linkedList_remove_All(LinkedList* list);
 
-//void linkedList_remove_if(LinkedList* list, _Bool (condition) (void*, void*));
+void linkedList_remove_if(LinkedList* list, void* item_condtion, _Bool (condition) (void*, void*));
 
-//void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*));
+void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*));
+static void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*));
+static void mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*));
 
 extern void linkedList_remove_first(LinkedList* list);
 extern void linkedList_remove_last(LinkedList* list);

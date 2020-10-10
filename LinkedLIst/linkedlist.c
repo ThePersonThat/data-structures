@@ -10,14 +10,12 @@
         return;                                           \
     }   
 
-_Bool linkedList_contain(LinkedList * list, void* item)
+_Bool linkedList_contains(LinkedList * list, void* item)
 {
     for (int i = 0; i < list->size; i++)
     {
         if (linkedList_get(list, i) == item)
             return true;
-        else
-            continue;
     }
 
     return false;
@@ -86,27 +84,15 @@ inline void LinkedList_set_last(LinkedList* list, void* item)
 
 void linkedList_set(LinkedList* list, unsigned int index, void* item)
 {
-    CHECK_OUT_OF_BOUNDS(index, list->size);
-
     if (list->size == 0)
         return;
 
-    LinkedNode* temp;
+    CHECK_OUT_OF_BOUNDS(index, list->size);
 
-    if (list->size / 2 > index)
-    {
-        temp = list->head;
+    LinkedNode* temp = list->head;
 
-        for (int i = 0; i < index; i++)
-            temp = temp->next;
-    }
-    else
-    {
-        temp = list->tail;
-
-        for (int i = list->size; i > index + 1; i--)
-            temp = temp->prev;
-    }
+    for (int i = 0; i < index; i++)
+        temp = temp->next;
 
     temp->data = item;
 }
@@ -226,6 +212,20 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
     free(delete_node);
     list->size--;
+}
+
+_Bool linkedList_compare_list(LinkedList* one, LinkedList* two)
+{
+    if (one->size != two->size)
+        return false;
+
+    for (int i = 0; i < one->size; i++)
+    {
+        if (linkedList_get(one, i) != linkedList_get(two, i))
+            return false;
+    }
+
+    return true;
 }
 
 void linkedList_remove_All(LinkedList* list)

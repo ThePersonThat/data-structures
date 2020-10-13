@@ -52,8 +52,40 @@ void queue_push(Queue* queue, void* item)
         }
     }
 
-    linkedList_add_first(queue->list, item);
+    linkedList_add_last(queue->list, item);
     queue->size++;
+}
+
+char* queue_to_string(Queue* queue, const char* format, char* buffer)
+{
+    sprintf(buffer, "Queue: [ ");
+    int offset = strlen(buffer);
+
+    for(int i = 0; i < queue->size; i++)
+    {
+        sprintf(buffer + offset, format, linkedList_get(queue->list, i));
+        offset += strlen(buffer) - offset;
+    }
+
+    sprintf(buffer + offset, " ]\0");
+
+    return buffer;
+}
+
+Queue* queue_clone(Queue* queue)
+{
+    Queue* q = create_queueN(queue->capacity, queue->auto_growing);
+
+    q->size = queue->size;
+
+    q->list = linkedList_clone(queue->list);
+
+    return q;
+}
+
+inline _Bool queue_compare(Queue* first, Queue* second)
+{
+    return linkedList_compare_list(first->list, second->list);
 }
 
 inline void queue_remove_All(Queue* queue)

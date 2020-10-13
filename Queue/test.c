@@ -8,7 +8,11 @@ int main()
 
     queue_push(q, 10);
     queue_push(q, 20);
+    queue_push(q, 40);
 
-    printf("%d\n", queue_pop(q));
+    char buffer[128];
+
+    printf("%s\n", queue_to_string(q, " %d ", buffer));
+
     delete_queue(q);
 }

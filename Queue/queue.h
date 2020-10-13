@@ -14,10 +14,15 @@ static Queue* setup_queue(Queue* queue, unsigned int capacity, _Bool auto_growin
 Queue* create_queue(_Bool auto_growing);
 Queue* create_queueN(unsigned int size, _Bool auto_growing);
 
+Queue* queue_clone(Queue* queue);
+
+char* queue_to_string(Queue* queue, const char* format, char* buffer);
+
 extern void* queue_peek_font(Queue* queue);
 extern void* queue_peek_rear(Queue* queue);
 
 extern void queue_change_capacity(Queue* queue, unsigned int capacity);
+extern _Bool queue_compare(Queue* first, Queue* second);
 
 void queue_push(Queue* queue, void* item);
 void* queue_pop(Queue* queue);

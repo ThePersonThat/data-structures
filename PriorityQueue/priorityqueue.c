@@ -32,6 +32,17 @@ void prQueue_push(PriorityQueue* q, void* item)
         return;
     }
 
+    if(q->size == q->capacity)
+    {
+        if(q->auto_growing)
+            prQueue_change_capacity(q, q->capacity * 2);
+        else 
+        {
+            fprintf(stderr, "Error! Queue is full\n");
+            return;
+        }
+    }
+
     LinkedNode* node = q->list->head;
 
     int i = 0;
@@ -48,6 +59,12 @@ void prQueue_push(PriorityQueue* q, void* item)
     linkedList_add_by_index(q->list, i, item);
 }
 
+inline void prQueue_remove_All(PriorityQueue* queue)
+{
+    queue->size = 0;
+    linkedList_remove_All(queue->list);
+}
+
 void* prQueue_pop(PriorityQueue* q)
 {
     void* item = linkedList_get(q->list, 0);
@@ -58,6 +75,11 @@ void* prQueue_pop(PriorityQueue* q)
 
 }
 
+inline void prQueue_change_capacity(PriorityQueue* q, unsigned int capacity)
+{
+    q->capacity = capacity;
+}
+
 PriorityQueue* create_prQueue(CompareFunction func, _Bool auto_growing)
 {
     return setup_prQueue(func, INITIAL_DEFAULT_SIZE, auto_growing);
@@ -66,6 +88,41 @@ PriorityQueue* create_prQueue(CompareFunction func, _Bool auto_growing)
 PriorityQueue* create_prQueueN(CompareFunction func, unsigned int size, _Bool auto_growing)
 {
     return setup_prQueue(func, size, auto_growing);
+}
+
+inline void* prQueue_peek_font(PriorityQueue* q)
+{
+    return linkedList_get_first(q->list);
+}
+
+inline void* prQueue_peek_rear(PriorityQueue* q)
+{
+    return linkedList_get_last(q->list);
+}
+
+inline unsigned int prQueue_get_size(PriorityQueue* q)
+{
+    return q->size;
+}
+
+inline unsigned int prQueue_get_capacity(PriorityQueue* q)
+{
+    return q->capacity;
+}
+
+inline _Bool prQueue_is_full(PriorityQueue* q)
+{
+    return q->size == q->capacity;
+}
+
+inline _Bool prQueue_is_empty(PriorityQueue* q)
+{
+    return q->size == 0;
+}
+
+inline _Bool prQueue_is_auto_growing(PriorityQueue* q)
+{
+    return q->auto_growing;
 }
 
 

@@ -3,7 +3,6 @@
 
 #define INITIAL_DEFAULT_SIZE 16
 
-
 PriorityQueue* setup_prQueue(CompareFunction func, unsigned int capacity, _Bool auto_growing)
 {
     PriorityQueue* q = malloc(sizeof(PriorityQueue));
@@ -75,7 +74,7 @@ void* prQueue_pop(PriorityQueue* q)
 
 }
 
-PriorityQueue* queue_clone(PriorityQueue* q)
+PriorityQueue* prQueue_clone(PriorityQueue* q)
 {
     PriorityQueue* queue = create_prQueueN(q->func, q->capacity, q->auto_growing);
 

@@ -75,6 +75,38 @@ void* prQueue_pop(PriorityQueue* q)
 
 }
 
+PriorityQueue* queue_clone(PriorityQueue* q)
+{
+    PriorityQueue* queue = create_prQueueN(q->func, q->capacity, q->auto_growing);
+
+    queue->size = q->size;
+
+    queue->list = linkedList_clone(q->list);
+
+    return queue;
+}
+
+char* prQueue_to_string(PriorityQueue* queue, const char* format, char* buffer)
+{
+    sprintf(buffer, "PriorityQueue: [ ");
+    int offset = strlen(buffer);
+
+    for(int i = 0; i < queue->size; i++)
+    {
+        sprintf(buffer + offset, format, linkedList_get(queue->list, i));
+        offset += strlen(buffer) - offset;
+    }
+
+    sprintf(buffer + offset, " ]\0");
+
+    return buffer;
+}
+
+inline _Bool prQueue_compare(PriorityQueue* first, PriorityQueue* second)
+{
+    return linkedList_compare_list(first->list, second->list);
+}
+
 inline void prQueue_change_capacity(PriorityQueue* q, unsigned int capacity)
 {
     q->capacity = capacity;

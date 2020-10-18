@@ -23,7 +23,12 @@ extern void prQueue_change_capacity(PriorityQueue* queue, unsigned int capacity)
 void prQueue_push(PriorityQueue* q, void* item);
 void* prQueue_pop(PriorityQueue* q);
 
+PriorityQueue* queue_clone(PriorityQueue* q);
+char* prQueue_to_string(PriorityQueue* queue, const char* format, char* buffer);
+
 void delete_prQueue(PriorityQueue* q);
+
+extern _Bool prQueue_compare(PriorityQueue* first, PriorityQueue* second);
 
 extern void* prQueue_peek_font(PriorityQueue* q);
 extern void* prQueue_peek_rear(PriorityQueue* q);

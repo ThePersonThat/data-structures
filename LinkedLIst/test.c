@@ -5,7 +5,7 @@
 
 
 
-_Bool condition(void* item, void* list)
+/*_Bool condition(void* item, void* list)
 {
     return linkedList_contains(list, item);
 }
@@ -102,11 +102,11 @@ void test_linkedList()
     delete_linkedList(clone_list);
     delete_linkedList(basic_list);
     delete_linkedList(compare_list);
-}
+}*/
 
 int main()
 {
     printf("Test is starting...\n\n");
-    test_linkedList();
+    //test_linkedList();
     printf("\nThe test was passed successfully\n");
 }

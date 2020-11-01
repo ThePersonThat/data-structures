@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define CHECK_OUT_OF_BOUNDS(index, size)                  \
     if(index < 0 || index > size)                         \
@@ -10,29 +11,46 @@
         return;                                           \
     }   
 
-_Bool linkedList_contains(LinkedList * list, void* item)
+_Bool linkedList_contains(const LinkedList * list, const void* item)
 {
-    for (int i = 0; i < list->size; i++)
+    if(list->equals)
     {
-        if (linkedList_get(list, i) == item)
-            return true;
+        for(int i = 0; i < list->size; i++)
+            if(list->equals(linkedList_get(list, i), item))
+                return true;
     }
-
+    else 
+    {
+        for (int i = 0; i < list->size; i++)
+            if (linkedList_get(list, i) == item)
+                return true;
+    }
+  
     return false;
 }
 
-LinkedList* create_linkedList()
+LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals)
 {
+    if(object_size <= 0)
+    {
+        fprintf(stderr, "Error! object_size <= 0\n");
+        return NULL;
+    }
+
     LinkedList* list = malloc(sizeof(LinkedList));
 
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
+    list->object_size = object_size;
+    list->destroy = destroy;
+    list->to_string = to_string;
+    list->equals = equals;
 
     return list;
 }
 
-void linkedList_insert_list(LinkedList* dest_list, LinkedList* source_list, unsigned int index)
+void linkedList_insert_list(LinkedList* dest_list, const LinkedList* source_list, unsigned int index)
 {
     CHECK_OUT_OF_BOUNDS(index, dest_list->size);
 
@@ -56,7 +74,7 @@ void linkedList_remove_if(LinkedList* list, void* item_condition, _Bool (conditi
     }
 }
 
-char* linkedList_to_string(LinkedList* list, const char* format, char* buffer)
+char* linkedList_to_string(const LinkedList* list, const char* format, char* buffer)
 {
     sprintf(buffer, "LinkedList: [ ");
     int offset = strlen("LinkedList: [ ");
@@ -72,17 +90,23 @@ char* linkedList_to_string(LinkedList* list, const char* format, char* buffer)
     return buffer;
 }
 
-inline void linkedList_set_first(LinkedList* list, void* item)
+inline void linkedList_set_first(LinkedList* list, const void* item)
 {
-    list->head->data = item;
+    if(list->destroy)
+        list->destroy(list->tail->data);
+    
+    memcpy(list->head->data, item, list->object_size);
 }
 
-inline void LinkedList_set_last(LinkedList* list, void* item)
+inline void LinkedList_set_last(LinkedList* list, const void* item)
 {
-    list->tail->data = item;
+    if(list->destroy)
+        list->destroy(list->tail->data);
+    
+    memcpy(list->tail->data, item, list->object_size);
 }
 
-void linkedList_set(LinkedList* list, unsigned int index, void* item)
+void linkedList_set(LinkedList* list, unsigned int index, const void* item)
 {
     if (list->size == 0)
         return;
@@ -94,7 +118,10 @@ void linkedList_set(LinkedList* list, unsigned int index, void* item)
     for (int i = 0; i < index; i++)
         temp = temp->next;
 
-    temp->data = item;
+    if(list->destroy)
+        list->destroy(temp->data);
+
+    memcpy(temp->data, item, list->object_size);
 }
 
 void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*))
@@ -145,6 +172,16 @@ void mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
     }
 }
 
+
+static void remove_node(LinkedNode* node, destroyFunction destroy)
+{
+    if(destroy)
+        destroy(node->data);
+
+    free(node->data);
+    free(node);
+}
+
 void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 {
     if (list->size == 0)
@@ -162,7 +199,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
         if (list->head->next == NULL)
         {
-            free(temp);
+            remove_node(temp, list->destroy);
 
             list->tail = list->head = NULL;
             return;
@@ -170,7 +207,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
         list->head = list->head->next;
         list->head->prev = NULL;
-        free(temp);
+        remove_node(temp, list->destroy);
 
         return;
     }
@@ -183,7 +220,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
         if (list->tail->prev == NULL)
         {
-            free(temp);
+            remove_node(temp, list->destroy);
 
             list->tail = list->head = NULL;
             return;
@@ -191,7 +228,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
        
         list->tail = list->tail->prev;
         list->tail->next = NULL;
-        free(temp);
+        remove_node(temp, list->destroy);
 
         return;
     }
@@ -210,19 +247,29 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
     temp->prev = delete_node->prev;
 
-    free(delete_node);
+    remove_node(temp, list->destroy);
     list->size--;
 }
 
-_Bool linkedList_compare_list(LinkedList* one, LinkedList* two)
+_Bool linkedList_compare_list(const LinkedList* one, const LinkedList* two)
 {
-    if (one->size != two->size)
+    if (one->size != two->size || one->object_size != two->object_size)
         return false;
 
-    for (int i = 0; i < one->size; i++)
+
+    if(one->equals)
     {
-        if (linkedList_get(one, i) != linkedList_get(two, i))
-            return false;
+        for(int i = 0; i < one->size; i++)
+            if(one->equals(linkedList_get(one, i), linkedList_get(two, i)) == false)
+                return false;
+    }
+    else 
+    {
+        for (int i = 0; i < one->size; i++)
+        {
+            if (linkedList_get(one, i) != linkedList_get(two, i))
+                return false;
+        }
     }
 
     return true;
@@ -244,13 +291,14 @@ void linkedList_remove_last(LinkedList* list)
     linkedList_remove_by_index(list, list->size - 1);
 }
 
-void linkedList_add_by_index(LinkedList* list, unsigned int index, void* item)
+void linkedList_add_by_index(LinkedList* list, unsigned int index, const void* item)
 {
     CHECK_OUT_OF_BOUNDS(index, list->size);
 
     LinkedNode* node = malloc(sizeof(LinkedNode));
+    node->data = malloc(sizeof(list->object_size));
 
-    node->data = item;
+    memcpy(node->data, item, list->object_size);
 
     if (index == 0)
     {
@@ -303,9 +351,9 @@ void linkedList_add_by_index(LinkedList* list, unsigned int index, void* item)
 }
 
 
-LinkedList* linkedList_clone(LinkedList* list)
+LinkedList* linkedList_clone(const LinkedList* list)
 {
-    LinkedList* clone_list = create_linkedList();
+    LinkedList* clone_list = create_linkedList(list->object_size, list->destroy, list->to_string, list->equals);
 
     for (int i = 0; i < list->size; i++)
         linkedList_add_last(clone_list, linkedList_get(list, i));
@@ -313,32 +361,32 @@ LinkedList* linkedList_clone(LinkedList* list)
     return clone_list;
 }
 
-_Bool linkedList_is_empty(LinkedList* list)
+_Bool linkedList_is_empty(const LinkedList* list)
 {
-    return list->size == 0 ? true : false;
+    return list->size == 0;
 }
 
-inline void linkedList_add_first(LinkedList* list, void* item)
+inline void linkedList_add_first(LinkedList* list, const void* item)
 {
     linkedList_add_by_index(list, 0, item);
 }
 
-inline void linkedList_add_last(LinkedList* list, void* item)
+inline void linkedList_add_last(LinkedList* list, const void* item)
 {
     linkedList_add_by_index(list, list->size, item);
 }
 
-inline void* linkedList_get_first(LinkedList* list)
+inline void* linkedList_get_first(const LinkedList* list)
 {
     return list->head->data;
 }
 
-inline void* linkedList_get_last(LinkedList* list)
+inline void* linkedList_get_last(const LinkedList* list)
 {
     return list->tail->data;
 }
 
-void* linkedList_get(LinkedList* list, unsigned int index)
+void* linkedList_get(const LinkedList* list, unsigned int index)
 {
     if(index < 0 || index > list->size)                       
     {                                                   
@@ -360,7 +408,7 @@ void* linkedList_get(LinkedList* list, unsigned int index)
     return temp->data;
 }
 
-inline unsigned int linkedList_get_size(LinkedList* list)
+inline unsigned int linkedList_get_size(const LinkedList* list)
 {
     return list->size;
 }

@@ -22,8 +22,10 @@ _Bool linkedList_contains(const LinkedList * list, const void* item)
     else 
     {
         for (int i = 0; i < list->size; i++)
-            if (linkedList_get(list, i) == item)
+        {
+            if (memcmp(linkedList_get(list, i), item,  list->object_size) == 0)
                 return true;
+        }
     }
   
     return false;
@@ -74,20 +76,22 @@ void linkedList_remove_if(LinkedList* list, void* item_condition, _Bool (conditi
     }
 }
 
-char* linkedList_to_string(const LinkedList* list, const char* format, char* buffer)
+void linkedList_to_string(const LinkedList* list)
 {
-    sprintf(buffer, "LinkedList: [ ");
-    int offset = strlen("LinkedList: [ ");
-
-    for (int i = 0; i < list->size; i++)
+    printf("LinkedList: \n");
+    
+    if (list->to_string)
     {
-        sprintf(buffer + offset, format, linkedList_get(list, i));
-        offset += strlen(buffer) - offset;
+        for (int i = 0; i < list->size; i++)
+            list->to_string(linkedList_get(list, i));
+    } 
+    else
+    {
+        for (int i = 0; i < list->size; i++)
+            printf("%p\n", linkedList_get(list, i));
     }
 
-    sprintf(buffer + offset, " ]\0");
-
-    return buffer;
+    printf("\n");
 }
 
 inline void linkedList_set_first(LinkedList* list, const void* item)
@@ -137,13 +141,17 @@ void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*,
         return;
     }
 
+    void* value = malloc(list->object_size);
+
     while (start <= mid && start2 <= end) {
 
         if (compare(linkedList_get(list, start), linkedList_get(list, start2))) {
             start++;
         }
         else {
-            void* value = linkedList_get(list, start2);
+ 
+            memcpy(value, linkedList_get(list, start2), list->object_size);
+
             int index = start2;
 
             while (index != start) {
@@ -153,11 +161,15 @@ void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*,
          
             linkedList_set(list, start, value);
 
+            
+
             start++;
             mid++;
             start2++;
         }
     }
+
+    free(value);
 }
 
 void mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
@@ -247,7 +259,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 
     temp->prev = delete_node->prev;
 
-    remove_node(temp, list->destroy);
+    remove_node(delete_node, list->destroy);
     list->size--;
 }
 
@@ -256,6 +268,8 @@ _Bool linkedList_compare_list(const LinkedList* one, const LinkedList* two)
     if (one->size != two->size || one->object_size != two->object_size)
         return false;
 
+    if (one == two)
+        return true;
 
     if(one->equals)
     {
@@ -267,7 +281,7 @@ _Bool linkedList_compare_list(const LinkedList* one, const LinkedList* two)
     {
         for (int i = 0; i < one->size; i++)
         {
-            if (linkedList_get(one, i) != linkedList_get(two, i))
+            if(memcmp(linkedList_get(one, i), linkedList_get(two, i), one->object_size) != 0)
                 return false;
         }
     }

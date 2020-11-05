@@ -1,8 +1,9 @@
 #include <stdbool.h>
 
+#define cast(type, value) *(type *)value
 
 typedef void (*destroyFunction) (void *);
-typedef char* (*to_stringFunction) (const void *, char* buffer);
+typedef void (*to_stringFunction) (const void *);
 typedef _Bool (*equalsFunction) (const void*, const void*);
 
 typedef struct _linkedNode {
@@ -29,7 +30,7 @@ extern void linkedList_add_last(LinkedList* list, const void* item);
 
 LinkedList* linkedList_clone(const LinkedList* list);
 
-char* linkedList_to_string(const LinkedList* list, const char* format, char* buffer);
+void linkedList_to_string(const LinkedList* list);
 
 void linkedList_insert_list(LinkedList* dest_list, const LinkedList* source_list, unsigned int index);
 

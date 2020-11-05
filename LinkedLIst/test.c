@@ -3,34 +3,36 @@
 #include <assert.h>
 #include <stdio.h>
 
+void to_string(const void* item)
+{
+    printf("[ %d ]", cast(int, item));
+}
 
-
-/*_Bool condition(void* item, void* list)
+_Bool condition(void* item, void* list)
 {
     return linkedList_contains(list, item);
 }
 
 _Bool compare(void* one, void* two)
 {
-    return (int)one > (int)two;
+    return cast(int, one) > cast(int, two);
 }
 
 void test_linkedList()
 {
-    LinkedList* basic_list = create_linkedList();
-    LinkedList* compare_list = create_linkedList();
-    
-    char* buffer[128];
+    LinkedList* basic_list = create_linkedList(sizeof(int), NULL, to_string, NULL);
+    LinkedList* compare_list = create_linkedList(sizeof(int), NULL, to_string, NULL);
 
     for (int i = 0; i < 10; i++)
     {
         if (i <= 5)
-            linkedList_add_by_index(compare_list, i, i);
+            linkedList_add_by_index(compare_list, i, &i);
 
-        linkedList_add_by_index(basic_list, i, i);
+        linkedList_add_by_index(basic_list, i, &i);
     }
 
-    printf("Created the LinkedList from 0 to 10: %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("Created the LinkedList from 0 to 10:\n");
+    linkedList_to_string(basic_list);
 
     for (int i = 0; i <= 3; i++)
     {
@@ -39,14 +41,15 @@ void test_linkedList()
 
     printf("\n\t\t\t\t================= Test removing ================= \n\n");
 
-    printf("The linkedList after removing items by index (removing index from 5 to 9): %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("The linkedList after removing items by index (removing index from 5 to 9):\n");
+    linkedList_to_string(basic_list);
     assert(linkedList_compare_list(basic_list, compare_list) && "Removing by index was not passed successfully\n");
 
     linkedList_remove_All(compare_list);
 
     for (int i = 0; i < 5; i++)
     {
-        linkedList_add_by_index(compare_list, i, i);
+        linkedList_add_by_index(compare_list, i, &i);
     }
 
 
@@ -56,10 +59,13 @@ void test_linkedList()
     }
 
     
-    printf("The linkedList after removing with condition (condition: if(item >= 0 || item < 5)): %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("The linkedList after removing with condition (condition: if(item >= 0 || item < 5)):\n");
+    linkedList_to_string(basic_list);
 
-    assert(linkedList_contains(basic_list, 5) && "Removing with condition was not passed successfully\n");
-
+    {
+        int number = 5;
+        assert(linkedList_contains(basic_list, &number) && "Removing with condition was not passed successfully\n");
+    }
     printf("\n\t\t\t\t================= Test removing ================= \n\n");
     printf("\n\t\t\t\t------------------------------------------------- \n\n");
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
@@ -70,7 +76,7 @@ void test_linkedList()
 
     for (int i = 0; i < 5; i++)
     {
-        linkedList_add_last(basic_list, i);
+        linkedList_add_last(basic_list, &i);
     }
     
     LinkedList* clone_list = linkedList_clone(basic_list);
@@ -79,7 +85,8 @@ void test_linkedList()
 
     linkedList_insert_list(basic_list, clone_list, 1);
     
-    printf("Inserted a new linkedList into the main array at index 1: %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("Inserted a new linkedList into the main array at index 1:\n");
+    linkedList_to_string(basic_list);
 
     printf("\n\t\t\t\t================= Test insertion ================ \n\n");
     printf("\n\t\t\t\t------------------------------------------------- \n\n");
@@ -88,25 +95,28 @@ void test_linkedList()
 
     for (int i = 0; i < basic_list->size; i++)
     {
-        linkedList_set(basic_list, i, rand() % 50);
+        int number = rand() % 50;
+        linkedList_set(basic_list, i, &number);
     }
 
-    printf("Setted random items in linkedList: %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("Setted random items in linkedList:\n");
+    linkedList_to_string(basic_list);
 
     linkedList_sort(basic_list, compare);
 
-    printf("LinkedList sorted: %s\n", linkedList_to_string(basic_list, " %d ", buffer));
+    printf("LinkedList sorted:\n");
+    linkedList_to_string(basic_list);
 
     printf("\n\t\t\t\t=================   Other test   ================ \n\n");
 
     delete_linkedList(clone_list);
     delete_linkedList(basic_list);
     delete_linkedList(compare_list);
-}*/
+}
 
 int main()
 {
     printf("Test is starting...\n\n");
-    //test_linkedList();
+    test_linkedList();
     printf("\nThe test was passed successfully\n");
 }

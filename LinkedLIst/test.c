@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void to_string(const void* item)
 {
@@ -20,8 +21,8 @@ _Bool compare(void* one, void* two)
 
 void test_linkedList()
 {
-    LinkedList* basic_list = create_linkedList(sizeof(int), NULL, to_string, NULL);
-    LinkedList* compare_list = create_linkedList(sizeof(int), NULL, to_string, NULL);
+    LinkedList* basic_list = create_linkedList(sizeof(int), NULL, to_string, NULL, NULL);
+    LinkedList* compare_list = create_linkedList(sizeof(int), NULL, to_string, NULL, NULL);
 
     for (int i = 0; i < 10; i++)
     {
@@ -82,6 +83,9 @@ void test_linkedList()
     LinkedList* clone_list = linkedList_clone(basic_list);
 
     assert(linkedList_compare_list(basic_list, clone_list) && "Error of clone list\n");
+
+    printf("LinkedList before the insertion:\n");
+    linkedList_to_string(basic_list);
 
     linkedList_insert_list(basic_list, clone_list, 1);
     

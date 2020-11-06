@@ -5,6 +5,7 @@
 typedef void (*destroyFunction) (void *);
 typedef void (*to_stringFunction) (const void *);
 typedef _Bool (*equalsFunction) (const void*, const void*);
+typedef void* (*cloneFunction) (const void *);
 
 typedef struct _linkedNode {
     void* data;
@@ -15,6 +16,7 @@ typedef struct _linkedNode {
 typedef struct {
     LinkedNode* head; 
     LinkedNode* tail;
+    cloneFunction clone;
     destroyFunction destroy;
     equalsFunction equals;
     to_stringFunction to_string;
@@ -53,7 +55,7 @@ extern void linkedList_remove_first(LinkedList* list);
 extern void linkedList_remove_last(LinkedList* list);
 
 _Bool linkedList_contains(const LinkedList* list, const void* item);
-LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals);
+LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone);
 
 extern _Bool linkedList_is_empty(const LinkedList* list);
 

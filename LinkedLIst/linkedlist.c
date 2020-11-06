@@ -31,11 +31,11 @@ _Bool linkedList_contains(const LinkedList * list, const void* item)
     return false;
 }
 
-LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals)
+LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
-    if(object_size <= 0)
+    if(object_size == 0)
     {
-        fprintf(stderr, "Error! object_size <= 0\n");
+        fprintf(stderr, "Error! object_size == 0\n");
         return NULL;
     }
 
@@ -48,6 +48,7 @@ LinkedList* create_linkedList(unsigned int object_size, destroyFunction destroy,
     list->destroy = destroy;
     list->to_string = to_string;
     list->equals = equals;
+    list->clone = clone;
 
     return list;
 }
@@ -367,12 +368,25 @@ void linkedList_add_by_index(LinkedList* list, unsigned int index, const void* i
 
 LinkedList* linkedList_clone(const LinkedList* list)
 {
-    LinkedList* clone_list = create_linkedList(list->object_size, list->destroy, list->to_string, list->equals);
+    LinkedList* new_list = create_linkedList(list->object_size, list->destroy, list->to_string, list->equals, list->clone);
 
-    for (int i = 0; i < list->size; i++)
-        linkedList_add_last(clone_list, linkedList_get(list, i));
+    void* item = NULL;
 
-    return clone_list;
+    if (list->clone)
+    {
+        for (int i = 0; i < list->size; i++)
+        {
+            item = list->clone(linkedList_get(list, i));
+            linkedList_add_by_index(new_list, i, item);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < list->size; i++)
+            linkedList_add_by_index(new_list, i, linkedList_get(list, i));
+    }
+    
+    return new_list;
 }
 
 _Bool linkedList_is_empty(const LinkedList* list)

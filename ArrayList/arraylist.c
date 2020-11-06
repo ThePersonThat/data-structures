@@ -7,6 +7,8 @@
 #include <stdbool.h>
 
 #define INITIAL_DEFAULT_SIZE 16
+#define OFFSET(ptr, object_size, offset) (void *)((unsigned char *)ptr + (offset) * object_size)
+
 
 #define CHECK_OUT_OF_BOUNDS(index, size)                \
     if(index < 0 || index > size)                       \
@@ -16,8 +18,14 @@
     }                                                   \
 
 
-ArrayList* create_arrayList()
+ArrayList* setup_arrayList(unsigned int size, unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
+    if(object_size == 0)
+    {
+        fprintf(stderr, "Error! object_size == 0\n");
+        return NULL;
+    }
+
     ArrayList* list = malloc(sizeof(ArrayList));
 
     if(list == NULL)
@@ -26,38 +34,33 @@ ArrayList* create_arrayList()
         return NULL;
     }
 
+    list->object_size = object_size;
     list->size = 0;
-    list->data = malloc(sizeof(void *) * INITIAL_DEFAULT_SIZE);
-    list->capacity = INITIAL_DEFAULT_SIZE;
+    list->data = malloc(object_size * size);
+    list->capacity = size;
+    list->to_string = to_string;
+    list->destroy = destroy;
+    list->equals = equals;
+    list->clone = clone;
 
     return list;
 }
 
-ArrayList* create_arrayListN(int size) 
+ArrayList* create_arrayList(unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
-    if(size == 0 || size < 0)
-    {
-        fprintf(stderr, "Wrong item count");
-        return NULL;
-    }
+    return setup_arrayList(INITIAL_DEFAULT_SIZE, object_size, destroy, to_string, equals, clone);
+}
 
-    ArrayList* list = malloc(sizeof(ArrayList));
-
-    if(list == NULL)
-    {
-        fprintf(stderr, "Error allocate memory");
-        return NULL;
-    }
-
-    list->size = 0;
-    list->data = malloc(sizeof(void *) * size);
-    list->capacity = size;
-
-    return list;
+ArrayList* create_arrayListN(unsigned int size, unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
+{
+    return setup_arrayList(size, object_size, destroy, to_string, equals, clone);
 }
 
 void delete_arrayList(ArrayList* list)
 {
+    if(list->destroy)
+        arrayList_removeAll(list);
+
     free(list->data);
     free(list);
 }
@@ -67,52 +70,83 @@ static void allocate_item(ArrayList* list)
     if(list->size + 1 > list->capacity)
     {
         list->capacity *= 2;
-        list->data = realloc(list->data, sizeof(void *) * list->capacity);
+        list->data = realloc(list->data, list->object_size * list->capacity);
         assert(list->data);
     }
 }
 
-void arrayList_add(ArrayList* list, void* item)
+void arrayList_add_first(ArrayList* list, const void* item)
 {
-    allocate_item(list);
-    list->data[list->size++] = item;
+    arrayList_add_by_index(list, list->size, item);
 }
 
-void arrayList_add_by_index(ArrayList* list, int index, void* item)
+void arrayList_add_last(ArrayList* list, const void* item)
+{
+    arrayList_add_by_index(list, 0, item);
+}
+
+void arrayList_add_by_index(ArrayList* list, int index, const void* item)
 {
     CHECK_OUT_OF_BOUNDS(index, list->size);
     
     allocate_item(list);
-    memmove(list->data + index + 1, list->data + index, sizeof(list->data) * (list->size - index));
-    list->data[index] = item;
+
+    if(list->size == index)
+    {
+        allocate_item(list);
+
+        memcpy(OFFSET(list->data, list->object_size, list->size), item, list->object_size);
+        list->size++;
+
+        return;
+    }
+
+    memmove(OFFSET(list->data, list->object_size, index + 1), OFFSET(list->data, list->object_size, index), list->object_size * (list->size - index));
+    memcpy(OFFSET(list->data, list->object_size, index), item, list->object_size);
     list->size++;
 }
 
-void arrayList_set(ArrayList* list, int index, void* item)
+
+void arrayList_set_first(ArrayList* list, const void* item)
 {
-    CHECK_OUT_OF_BOUNDS(index, list->size);
-    list->data[index] = item;
+    arrayList_set(list, 0, item);
 }
 
-_Bool arrayList_contains(ArrayList* list, void* item)
+void arrayList_set_last(ArrayList* list, const void* item)
 {
-    for(int i = 0; i < list->size; i++)
+    arrayList_set(list, list->size - 1, item);
+}
+
+void arrayList_set(ArrayList* list, int index, const void* item)
+{
+    CHECK_OUT_OF_BOUNDS(index, list->size);
+
+    if(list->destroy)
+        list->destroy(OFFSET(list->data, list->object_size, index));
+
+    memcpy(OFFSET(list->data, list->object_size, index), item, list->object_size);
+}
+
+_Bool arrayList_contains(ArrayList* list, const void* item)
+{
+    if(list->equals)
     {
-        if(list->data[i] == item)
-            return true; 
+        for(int i = 0; i < list->size; i++)
+            if(list->equals(OFFSET(list->data, list->object_size, i), item) == true)
+                return true;
+    }
+    else 
+    {
+        for(int i = 0; i < list->size; i++)
+            if(memcmp(OFFSET(list->data, list->object_size, i), item, list->object_size) == 0)
+                return true;
     }
 
     return false;
 }
 
-void arrayList_change_capacity(ArrayList* list, int capacity)
+void arrayList_change_capacity(ArrayList* list, unsigned int capacity)
 {
-    if(capacity < 0 )
-    {
-        fprintf(stderr, "Error! Index out of bounds");
-        return;
-    }
-
     if(capacity < list->size)
     {
         fprintf(stderr, "Error! Capacity can't be less then size");
@@ -120,43 +154,69 @@ void arrayList_change_capacity(ArrayList* list, int capacity)
     }
 
     list->capacity = capacity;
-    list->data = realloc(list->data, sizeof(void *) * list->capacity);
+    list->data = realloc(list->data, list->object_size * list->capacity);
     assert(list->data);
 }
 
-void arrayList_insert_list(ArrayList* dest_list, ArrayList* source_list, int index)
+void arrayList_insert_list(ArrayList* dest_list, const ArrayList* source_list, int index)
 {
-    if(source_list->size <= 0)
+    if(dest_list->object_size != source_list->object_size)
+    {
+        fprintf(stderr, "Error! Data types are different!\n");
         return;
+    }
+
+    if(source_list->size == 0)
+    {
+        fprintf(stderr, "Error! Size of list is 0\n");
+        return;
+    }
         
     CHECK_OUT_OF_BOUNDS(index, dest_list->size);
         
     if(source_list->size + dest_list->size > dest_list->capacity)
         arrayList_change_capacity(dest_list, (source_list->size + dest_list->size) * 2);
 
-    memmove(dest_list->data + index + source_list->size, dest_list->data + index, sizeof(dest_list->data) * (dest_list->size - index));
+    memmove(OFFSET(dest_list->data, dest_list->object_size, index + source_list->size), OFFSET(dest_list->data, dest_list->object_size, index), dest_list->object_size * (dest_list->size - index));
+    
     for(int i = index, j = 0; i < index + source_list->size; i++, j++)
     {
-        dest_list->data[i] = source_list->data[j];
+        memcpy(OFFSET(dest_list->data, dest_list->object_size, i), OFFSET(source_list->data, dest_list->object_size, j), source_list->object_size);
         dest_list->size++;
     }
 }
 
-ArrayList* arrayList_clone(ArrayList* list)
+ArrayList* arrayList_clone(const ArrayList* list)
 {
-    ArrayList* new_list = create_arrayListN(list->capacity);
-    
-    for(int i = 0; i < list->size; i++)
-        arrayList_add(new_list, list->data[i]);
+    ArrayList* new_list = create_arrayListN(list->capacity, list->object_size, list->destroy, list->to_string, list->equals, list->clone);
+
+    void* item = NULL;
+
+    if (list->clone)
+    {
+        for (int i = 0; i < list->size; i++)
+        {
+            item = list->clone(arrayList_get(list, i));
+            arrayList_add_by_index(new_list, i, item);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < list->size; i++)
+            arrayList_add_by_index(new_list, i, arrayList_get(list, i));
+    }
     
     return new_list;
 }
 
-void arrayList_remove_by_index(ArrayList* list, int index)
+void arrayList_remove_by_index(ArrayList* list, unsigned int index)
 {
     CHECK_OUT_OF_BOUNDS(index, list->size);
 
-    memmove(list->data + index, list->data + index + 1, sizeof(list->data) * (list->size - index));
+    if(list->destroy)
+        list->destroy(OFFSET(list->data, list->object_size, index));
+    
+    memmove(OFFSET(list->data, list->object_size, index), OFFSET(list->data, list->object_size, index + 1), list->object_size * (list->size - index));
     list->size--;
 }
 
@@ -164,88 +224,105 @@ void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition
 {
     for(int i = 0; i < list->size; i++)
     {
-        if(condition(list->data[i], item_condition))
+        if(condition(OFFSET(list->data, list->object_size, i), item_condition))
             arrayList_remove_by_index(list, i);
     }
 }
 
-void* arrayList_get_element(ArrayList* list, int index)
+void* arrayList_get(const ArrayList* list, unsigned int index)
 {
-    if(index < 0 || index > list->size)                       
+    if(index > list->size)                       
     {                                                   
         fprintf(stderr, "Error! Index out of bounds");  
         return NULL;                                         
     }      
     
-    return list->data[index];
+    return OFFSET(list->data, list->object_size, index);
 }
 
-_Bool arrayList_compare_list(ArrayList* first_list, ArrayList* second_list)
+_Bool arrayList_compare_list(const ArrayList* first_list, const ArrayList* second_list)
 {
-    if(first_list->size != second_list->size)
+    if(first_list->size != second_list->size || first_list->object_size != second_list->object_size)
         return false;
 
-    for(int i = 0; i < first_list->size; i++)
+    if(first_list->equals)
     {
-        if(first_list->data[i] == second_list->data[i]) 
-            continue;
-        else 
-            return false;  
+        for(int i = 0; i < first_list->size; i++)
+            if(first_list->equals(OFFSET(first_list->data, first_list->object_size, i), OFFSET(second_list->data, second_list->object_size, i)) == false)
+                return false;
     }
+    else
+    {
+        for(int i = 0; i < first_list->size; i++)
+            if(memcmp(OFFSET(first_list->data, first_list->object_size, i), OFFSET(second_list->data, second_list->object_size, i), first_list->object_size) != 0)
+                return false;
+    }
+    
 
     return true;
 }
 
-char* arrayList_to_string(ArrayList* list, const char* format, char* buffer)
+void arrayList_to_string(const ArrayList* list)
 {
-    sprintf(buffer, "ArrayList: [ ");
-    int offset = strlen("ArrayList: [ ");
-
-    for(int i = 0; i < list->size; i++)
+    printf("ArrayList: \n");
+    
+    if (list->to_string)
     {
-        sprintf(buffer + offset, format, arrayList_get_element(list, i));
-        offset += strlen(buffer) - offset;
+        for (int i = 0; i < list->size; i++)
+            list->to_string(arrayList_get(list, i));
+    } 
+    else
+    {
+        for (int i = 0; i < list->size; i++)
+            printf("%p\n", arrayList_get(list, i));
     }
 
-    sprintf(buffer + offset, " ]\0");
-
-    return buffer;
+    printf("\n");
 }
 
 
 void arrayList_sort(ArrayList* list, _Bool (compare) (void *, void *))
 {
-    mergeSort(list->data, 0, list->size - 1, compare);
+    mergeSort(list, 0, list->size - 1, compare);
 }
 
-void merge(void* arr[], int start, int mid, int end, _Bool (compare)(void*, void*))
+void merge(ArrayList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
 {
     int start2 = mid + 1;
 
-    if (compare(arr[mid], arr[start2])) {
+    if (compare(OFFSET(list->data, list->object_size, mid), OFFSET(list->data, list->object_size, start2)))
         return;
-    }
+    
+    void* value = malloc(list->object_size);
 
     while (start <= mid && start2 <= end) {
 
-        if (compare(arr[start], arr[start2])) {
+        if (compare(OFFSET(list->data, list->object_size, start), OFFSET(list->data, list->object_size, start2))) 
+        {
             start++;
         }
-        else {
-            void* value = arr[start2];
+        else 
+        {
+            memcpy(value, OFFSET(list->data, list->object_size, start2), list->object_size);
+
             int index = start2;
 
-            while (index != start) {
-                arr[index] = arr[index - 1];
+            while (index != start) 
+            {
+                memcpy(OFFSET(list->data, list->object_size, index), OFFSET(list->data, list->object_size, index - 1), list->object_size);
                 index--;
             }
-            arr[start] = value;
+    
+            memcpy(OFFSET(list->data, list->object_size, start), value, list->object_size);
+
 
             start++;
             mid++;
             start2++;
         }
     }
+
+    free(value);
 }
 
 void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *))
@@ -260,8 +337,14 @@ void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *))
     }
 }
 
-inline void arrayList_removeAll(ArrayList* list)
+void arrayList_removeAll(ArrayList* list)
 {
+    if(list->destroy)
+    {
+        for(int i = 0; i < list->size; i++)
+            list->destroy(OFFSET(list->data, list->object_size, i));
+    }
+
     list->size = 0;
 }
 

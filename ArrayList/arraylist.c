@@ -59,7 +59,7 @@ ArrayList* create_arrayListN(unsigned int size, unsigned int object_size, destro
 void delete_arrayList(ArrayList* list)
 {
     if(list->destroy)
-        arrayList_removeAll(list);
+        arrayList_remove_All(list);
 
     free(list->data);
     free(list);
@@ -77,12 +77,12 @@ static void allocate_item(ArrayList* list)
 
 void arrayList_add_first(ArrayList* list, const void* item)
 {
-    arrayList_add_by_index(list, list->size, item);
+    arrayList_add_by_index(list, 0, item);
 }
 
 void arrayList_add_last(ArrayList* list, const void* item)
 {
-    arrayList_add_by_index(list, 0, item);
+    arrayList_add_by_index(list, list->size, item);
 }
 
 void arrayList_add_by_index(ArrayList* list, int index, const void* item)
@@ -325,19 +325,19 @@ void merge(ArrayList* list, int start, int mid, int end, _Bool (compare)(void*, 
     free(value);
 }
 
-void mergeSort(void* arr[], int l, int r, _Bool (compare) (void *, void *))
+void mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *))
 {
     if (l < r) {
         int m = l + (r - l) / 2;
 
-        mergeSort(arr, l, m, compare);
-        mergeSort(arr, m + 1, r, compare);
+        mergeSort(list, l, m, compare);
+        mergeSort(list, m + 1, r, compare);
 
-        merge(arr, l, m, r, compare);
+        merge(list, l, m, r, compare);
     }
 }
 
-void arrayList_removeAll(ArrayList* list)
+void arrayList_remove_All(ArrayList* list)
 {
     if(list->destroy)
     {

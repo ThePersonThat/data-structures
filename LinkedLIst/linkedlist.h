@@ -3,9 +3,9 @@
 #define cast(type, value) *(type *)value
 
 typedef void (*destroyFunction) (void *);
-typedef void (*to_stringFunction) (const void *);
-typedef _Bool (*equalsFunction) (const void*, const void*);
-typedef void* (*cloneFunction) (const void *);
+typedef void (*to_stringFunction) (void *);
+typedef _Bool (*equalsFunction) (void*, void*);
+typedef void* (*cloneFunction) (void *);
 
 typedef struct _linkedNode {
     void* data;

@@ -4,9 +4,9 @@
 
 
 typedef void (*destroyFunction) (void *); 
-typedef _Bool (*equalsFunction) (const void*, const void*);
-typedef void (*to_stringFunction) (const void *);
-typedef void* (*cloneFunction) (const void*);
+typedef _Bool (*equalsFunction) (void*, void*);
+typedef void (*to_stringFunction) (void *);
+typedef void* (*cloneFunction) (void*);
 
 typedef struct {
     void* data; 
@@ -51,10 +51,10 @@ void arrayList_remove_by_index(ArrayList* list, unsigned int index); // remove i
 void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition) (void *, void *)); // remove item if it fits the condition
 
 static void allocate_item(ArrayList* list); // allocate memory for new item
-static void mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *)); // merge sort
-static void merge(ArrayList* list, int start, int mid, int end, _Bool (compare) (void*, void*)); // merge sort
+//static void mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *)); // merge sort
+//static void merge(ArrayList* list, int start, int mid, int end, _Bool (compare) (void*, void*)); // merge sort
 
-void arrayList_removeAll(ArrayList* list); // remove all the item from list
+void arrayList_remove_All(ArrayList* list); // remove all the item from list
 extern unsigned int arrayList_get_size(ArrayList* list); // get list size 
 extern unsigned int arrayList_get_capacity(ArrayList* list); // get list capacity 
 extern _Bool arrayList_is_empty(ArrayList* list); // returns true if this arrayList contains no elements

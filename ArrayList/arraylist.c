@@ -283,10 +283,10 @@ void arrayList_to_string(const ArrayList* list)
 
 void arrayList_sort(ArrayList* list, _Bool (compare) (void *, void *))
 {
-    mergeSort(list, 0, list->size - 1, compare);
+    arrayList_mergeSort(list, 0, list->size - 1, compare);
 }
 
-void merge(ArrayList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
+void arrayList_merge(ArrayList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
 {
     int start2 = mid + 1;
 
@@ -325,15 +325,15 @@ void merge(ArrayList* list, int start, int mid, int end, _Bool (compare)(void*, 
     free(value);
 }
 
-void mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *))
+void arrayList_mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *))
 {
     if (l < r) {
         int m = l + (r - l) / 2;
 
-        mergeSort(list, l, m, compare);
-        mergeSort(list, m + 1, r, compare);
+        arrayList_mergeSort(list, l, m, compare);
+        arrayList_mergeSort(list, m + 1, r, compare);
 
-        merge(list, l, m, r, compare);
+        arrayList_merge(list, l, m, r, compare);
     }
 }
 

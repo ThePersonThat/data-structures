@@ -131,10 +131,10 @@ void linkedList_set(LinkedList* list, unsigned int index, const void* item)
 
 void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*))
 {
-    mergeSort(list, 0, list->size - 1, compare);
+    linkedList_mergeSort(list, 0, list->size - 1, compare);
 }
 
-void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
+void linkedList_merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
 {
     int start2 = mid + 1;
 
@@ -173,15 +173,15 @@ void merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*,
     free(value);
 }
 
-void mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
+void linkedList_mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
 {
     if (l < r) {
         int m = l + (r - l) / 2;
 
-        mergeSort(list, l, m, compare);
-        mergeSort(list, m + 1, r, compare);
+        linkedList_mergeSort(list, l, m, compare);
+        linkedList_mergeSort(list, m + 1, r, compare);
 
-        merge(list, l, m, r, compare);
+        linkedList_merge(list, l, m, r, compare);
     }
 }
 
@@ -416,9 +416,9 @@ inline void* linkedList_get_last(const LinkedList* list)
 
 void* linkedList_get(const LinkedList* list, unsigned int index)
 {
-    if(index < 0 || index > list->size)                       
+    if(index < 0 || index >= list->size)                       
     {                                                   
-        fprintf(stderr, "Error! Index out of bounds"); 
+        //fprintf(stderr, "Error! Index out of bounds"); 
         return NULL;                                         
     }   
 

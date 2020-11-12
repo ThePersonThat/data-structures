@@ -50,9 +50,9 @@ void* arrayList_get(const ArrayList* list, unsigned int index); // to get elemen
 void arrayList_remove_by_index(ArrayList* list, unsigned int index); // remove item by index 
 void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition) (void *, void *)); // remove item if it fits the condition
 
-static void allocate_item(ArrayList* list); // allocate memory for new item
-//static void mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *)); // merge sort
-//static void merge(ArrayList* list, int start, int mid, int end, _Bool (compare) (void*, void*)); // merge sort
+void allocate_item(ArrayList* list); // allocate memory for new item
+static void arrayList_mergeSort(ArrayList* list, int l, int r, _Bool (compare) (void *, void *)); // merge sort
+static void arrayList_merge(ArrayList* list, int start, int mid, int end, _Bool (compare) (void*, void*)); // merge sort
 
 void arrayList_remove_All(ArrayList* list); // remove all the item from list
 extern unsigned int arrayList_get_size(ArrayList* list); // get list size 

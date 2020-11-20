@@ -1,11 +1,9 @@
 #include <stdbool.h>
 
-#define cast(type, value) *(type *)value
-
 typedef void (*destroyFunction) (void *);
 typedef void (*to_stringFunction) (void *);
 typedef _Bool (*equalsFunction) (void*, void*);
-typedef void* (*cloneFunction) (void *);
+typedef void (*cloneFunction) (void* one, void* clone_one);
 
 typedef struct _linkedNode {
     void* data;
@@ -48,8 +46,8 @@ _Bool linkedList_compare_list(const LinkedList* one, const LinkedList* two);
 void linkedList_remove_if(LinkedList* list, void* item_condtion, _Bool (condition) (void*, void*));
 
 void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*));
-static void linkedList_merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*));
-static void linkedList_mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*));
+static void swap(LinkedNode* a, LinkedNode* b);
+static void bubbleSort(LinkedNode* start, _Bool (compare)(void*, void*));
 
 extern void linkedList_remove_first(LinkedList* list);
 extern void linkedList_remove_last(LinkedList* list);

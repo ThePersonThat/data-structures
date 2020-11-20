@@ -126,63 +126,49 @@ void linkedList_set(LinkedList* list, unsigned int index, const void* item)
     if(list->destroy)
         list->destroy(temp->data);
 
-    memcpy(temp->data, item, list->object_size);
+    if (list->clone)
+        list->clone(item, temp->data);
+    else
+        memcpy(temp->data, item, list->object_size);
+}
+
+void bubbleSort(LinkedNode* start, _Bool (compare)(void*, void*))
+{
+    int swapped, i;
+    LinkedNode* ptr1;
+    LinkedNode* lptr = NULL;
+
+    if (start == NULL)
+        return;
+
+    do
+    {
+        swapped = 0;
+        ptr1 = start;
+
+        while (ptr1->next != lptr)
+        {
+            if (compare(ptr1->data, ptr1->next->data))
+            {
+                swap(ptr1, ptr1->next);
+                swapped = 1;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    } while (swapped);
+}
+
+void swap(LinkedNode* a, LinkedNode* b)
+{
+    void* temp = a->data;
+    a->data = b->data;
+    b->data = temp;
 }
 
 void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*))
 {
-    linkedList_mergeSort(list, 0, list->size - 1, compare);
-}
-
-void linkedList_merge(LinkedList* list, int start, int mid, int end, _Bool (compare)(void*, void*))
-{
-    int start2 = mid + 1;
-
-    if (compare(linkedList_get(list, mid), linkedList_get(list, start2))) {
-        return;
-    }
-
-    void* value = malloc(list->object_size);
-
-    while (start <= mid && start2 <= end) {
-
-        if (compare(linkedList_get(list, start), linkedList_get(list, start2))) {
-            start++;
-        }
-        else {
- 
-            memcpy(value, linkedList_get(list, start2), list->object_size);
-
-            int index = start2;
-
-            while (index != start) {
-                linkedList_set(list, index, linkedList_get(list, index - 1));
-                index--;
-            }
-         
-            linkedList_set(list, start, value);
-
-            
-
-            start++;
-            mid++;
-            start2++;
-        }
-    }
-
-    free(value);
-}
-
-void linkedList_mergeSort(LinkedList* list, int l, int r, _Bool (compare)(void*, void*))
-{
-    if (l < r) {
-        int m = l + (r - l) / 2;
-
-        linkedList_mergeSort(list, l, m, compare);
-        linkedList_mergeSort(list, m + 1, r, compare);
-
-        linkedList_merge(list, l, m, r, compare);
-    }
+    bubbleSort(list->head, compare);
 }
 
 
@@ -267,7 +253,7 @@ void linkedList_remove_by_index(LinkedList* list, unsigned int index)
 _Bool linkedList_compare_list(const LinkedList* one, const LinkedList* two)
 {
     if (one->size != two->size || one->object_size != two->object_size)
-        return false;
+       return false;
 
     if (one == two)
         return true;
@@ -311,9 +297,12 @@ void linkedList_add_by_index(LinkedList* list, unsigned int index, const void* i
     CHECK_OUT_OF_BOUNDS(index, list->size);
 
     LinkedNode* node = malloc(sizeof(LinkedNode));
-    node->data = malloc(sizeof(list->object_size));
+    node->data = malloc(list->object_size);
 
-    memcpy(node->data, item, list->object_size);
+    if (list->clone)
+        list->clone(item, node->data);
+    else 
+        memcpy(node->data, item, list->object_size);
 
     if (index == 0)
     {
@@ -372,19 +361,8 @@ LinkedList* linkedList_clone(const LinkedList* list)
 
     void* item = NULL;
 
-    if (list->clone)
-    {
-        for (int i = 0; i < list->size; i++)
-        {
-            item = list->clone(linkedList_get(list, i));
-            linkedList_add_by_index(new_list, i, item);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < list->size; i++)
-            linkedList_add_by_index(new_list, i, linkedList_get(list, i));
-    }
+    for (int i = 0; i < list->size; i++)
+       linkedList_add_by_index(new_list, i, linkedList_get(list, i));
     
     return new_list;
 }

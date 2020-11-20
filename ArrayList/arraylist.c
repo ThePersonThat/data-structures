@@ -88,21 +88,34 @@ void arrayList_add_last(ArrayList* list, const void* item)
 void arrayList_add_by_index(ArrayList* list, int index, const void* item)
 {
     CHECK_OUT_OF_BOUNDS(index, list->size);
-    
-    allocate_item(list);
 
+    void* ptr = NULL;
+
+    allocate_item(list);
+    
     if(list->size == index)
     {
         allocate_item(list);
+        ptr = OFFSET(list->data, list->object_size, list->size);
+        memcpy(ptr, item, list->object_size);
 
-        memcpy(OFFSET(list->data, list->object_size, list->size), item, list->object_size);
+        if (list->clone)
+            list->clone(item, ptr);
+
         list->size++;
 
         return;
     }
 
+    ptr = OFFSET(list->data, list->object_size, index);
+
     memmove(OFFSET(list->data, list->object_size, index + 1), OFFSET(list->data, list->object_size, index), list->object_size * (list->size - index));
-    memcpy(OFFSET(list->data, list->object_size, index), item, list->object_size);
+    memcpy(ptr, item, list->object_size);
+
+
+    if (list->clone)
+        list->clone(item, ptr);
+
     list->size++;
 }
 
@@ -125,6 +138,9 @@ void arrayList_set(ArrayList* list, int index, const void* item)
         list->destroy(OFFSET(list->data, list->object_size, index));
 
     memcpy(OFFSET(list->data, list->object_size, index), item, list->object_size);
+    
+    if (list->clone)
+        list->clone(item, OFFSET(list->data, list->object_size, index));
 }
 
 _Bool arrayList_contains(ArrayList* list, const void* item)
@@ -177,12 +193,17 @@ void arrayList_insert_list(ArrayList* dest_list, const ArrayList* source_list, i
     if(source_list->size + dest_list->size > dest_list->capacity)
         arrayList_change_capacity(dest_list, (source_list->size + dest_list->size) * 2);
 
-    memmove(OFFSET(dest_list->data, dest_list->object_size, index + source_list->size), OFFSET(dest_list->data, dest_list->object_size, index), dest_list->object_size * (dest_list->size - index));
+    /*memmove(OFFSET(dest_list->data, dest_list->object_size, index + source_list->size), OFFSET(dest_list->data, dest_list->object_size, index), dest_list->object_size * (dest_list->size - index));
     
     for(int i = index, j = 0; i < index + source_list->size; i++, j++)
     {
         memcpy(OFFSET(dest_list->data, dest_list->object_size, i), OFFSET(source_list->data, dest_list->object_size, j), source_list->object_size);
         dest_list->size++;
+    }*/
+
+    for (int i = 0; i < source_list->size; i++, index++)
+    {
+        arrayList_add_by_index(dest_list, index, OFFSET(source_list->data, dest_list->object_size, i));
     }
 }
 
@@ -192,21 +213,20 @@ ArrayList* arrayList_clone(const ArrayList* list)
 
     void* item = NULL;
 
-    if (list->clone)
-    {
-        for (int i = 0; i < list->size; i++)
-        {
-            item = list->clone(arrayList_get(list, i));
-            arrayList_add_by_index(new_list, i, item);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < list->size; i++)
-            arrayList_add_by_index(new_list, i, arrayList_get(list, i));
-    }
+    for (int i = 0; i < list->size; i++)
+        arrayList_add_by_index(new_list, i, arrayList_get(list, i));
     
     return new_list;
+}
+
+void arrayList_remove_last(ArrayList* list)
+{
+    arrayList_remove_by_index(list, list->size - 1);
+}
+
+void arrayList_remove_first(ArrayList* list)
+{
+    arrayList_remove_by_index(list, 0);
 }
 
 void arrayList_remove_by_index(ArrayList* list, unsigned int index)

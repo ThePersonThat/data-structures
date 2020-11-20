@@ -6,7 +6,7 @@
 typedef void (*destroyFunction) (void *); 
 typedef _Bool (*equalsFunction) (void*, void*);
 typedef void (*to_stringFunction) (void *);
-typedef void* (*cloneFunction) (void*);
+typedef void (*cloneFunction) (void*, void*);
 
 typedef struct {
     void* data; 
@@ -47,7 +47,9 @@ _Bool arrayList_contains(ArrayList* list, const void* item); // check if contain
 _Bool arrayList_compare_list(const ArrayList* first_list, const ArrayList* second_list); // return true if all the elements from two arrayLists are the same 
 void* arrayList_get(const ArrayList* list, unsigned int index); // to get element by index
 
+void arrayList_remove_last(ArrayList* list);
 void arrayList_remove_by_index(ArrayList* list, unsigned int index); // remove item by index 
+void arrayList_remove_first(ArrayList* list);
 void arrayList_remove_if(ArrayList* list, void* item_condition, _Bool (condition) (void *, void *)); // remove item if it fits the condition
 
 void allocate_item(ArrayList* list); // allocate memory for new item

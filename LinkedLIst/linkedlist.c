@@ -78,9 +78,7 @@ void linkedList_remove_if(LinkedList* list, void* item_condition, _Bool (conditi
 }
 
 void linkedList_to_string(const LinkedList* list)
-{
-    printf("LinkedList: \n");
-    
+{    
     if (list->to_string)
     {
         for (int i = 0; i < list->size; i++)
@@ -130,6 +128,20 @@ void linkedList_set(LinkedList* list, unsigned int index, const void* item)
         list->clone(item, temp->data);
     else
         memcpy(temp->data, item, list->object_size);
+}
+
+void* LinkedList_pop(LinkedList* list)
+{
+    LinkedNode* next_head = list->head->next;
+    next_head->prev = NULL;
+    void* data = list->head->data;
+
+    free(list->head);
+
+    list->head = next_head;
+    list->size--;
+
+    return data;
 }
 
 void bubbleSort(LinkedNode* start, _Bool (compare)(void*, void*))

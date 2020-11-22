@@ -284,8 +284,6 @@ _Bool arrayList_compare_list(const ArrayList* first_list, const ArrayList* secon
 
 void arrayList_to_string(const ArrayList* list)
 {
-    printf("ArrayList: \n");
-    
     if (list->to_string)
     {
         for (int i = 0; i < list->size; i++)

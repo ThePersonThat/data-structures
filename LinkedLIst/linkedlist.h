@@ -1,3 +1,6 @@
+#ifndef LINKEDLIST_H
+#define LINKEDLIST_H
+
 #include <stdbool.h>
 
 typedef void (*destroyFunction) (void *);
@@ -61,3 +64,5 @@ extern void* linkedList_get_first(const LinkedList* list);
 extern void* linkedList_get_last(const LinkedList* list);
 extern unsigned int linkedList_get_size(const LinkedList* list);
 void delete_linkedList(LinkedList* list);
+
+#endif

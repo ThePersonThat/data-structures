@@ -1,3 +1,5 @@
+#ifndef ARRAYLIST_H
+#define ARRAYLIST_H
 
 #define fori_arrayList(item, index, list)  \
     for(item = list->data[index]; index < list->size; item = list->data[++index])
@@ -60,3 +62,5 @@ void arrayList_remove_All(ArrayList* list); // remove all the item from list
 extern unsigned int arrayList_get_size(ArrayList* list); // get list size 
 extern unsigned int arrayList_get_capacity(ArrayList* list); // get list capacity 
 extern _Bool arrayList_is_empty(ArrayList* list); // returns true if this arrayList contains no elements
+
+#endif

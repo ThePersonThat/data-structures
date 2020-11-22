@@ -3,7 +3,7 @@
 
 #define INITIAL_DEFAULT_SIZE 16
 
-PriorityQueue* setup_prQueue(CompareFunction func, unsigned int capacity, _Bool auto_growing)
+PriorityQueue* setup_prQueue(CompareFunction func, unsigned int capacity, _Bool auto_growing, unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
     PriorityQueue* q = malloc(sizeof(PriorityQueue));
 
@@ -17,12 +17,12 @@ PriorityQueue* setup_prQueue(CompareFunction func, unsigned int capacity, _Bool 
     q->capacity = capacity;
     q->size = 0;
     q->func = func;
-    q->list = create_linkedList();
+    q->list = create_linkedList(object_size, destroy, to_string, equals, clone);
 
     return q;
 }
 
-void prQueue_push(PriorityQueue* q, void* item)
+void prQueue_push(PriorityQueue* q, const void* item)
 {
     if(q->size == 0)
     {
@@ -66,17 +66,14 @@ inline void prQueue_remove_All(PriorityQueue* queue)
 
 void* prQueue_pop(PriorityQueue* q)
 {
-    void* item = linkedList_get(q->list, 0);
-    linkedList_remove_first(q->list);
-
     q->size--;
-    return item;
-
+    return LinkedList_pop_front(q->list);
 }
 
-PriorityQueue* prQueue_clone(PriorityQueue* q)
+PriorityQueue* prQueue_clone(const PriorityQueue* q)
 {
-    PriorityQueue* queue = create_prQueueN(q->func, q->capacity, q->auto_growing);
+    PriorityQueue* queue = create_prQueueN(q->func, q->capacity, q->auto_growing, q->list->object_size, q->list->destroy, 
+            q->list->to_string, q->list->equals, q->list->clone);
 
     queue->size = q->size;
 
@@ -85,23 +82,12 @@ PriorityQueue* prQueue_clone(PriorityQueue* q)
     return queue;
 }
 
-char* prQueue_to_string(PriorityQueue* queue, const char* format, char* buffer)
+inline void prQueue_to_string(const PriorityQueue* queue)
 {
-    sprintf(buffer, "PriorityQueue: [ ");
-    int offset = strlen(buffer);
-
-    for(int i = 0; i < queue->size; i++)
-    {
-        sprintf(buffer + offset, format, linkedList_get(queue->list, i));
-        offset += strlen(buffer) - offset;
-    }
-
-    sprintf(buffer + offset, " ]\0");
-
-    return buffer;
+    linkedList_to_string(queue->list);
 }
 
-inline _Bool prQueue_compare(PriorityQueue* first, PriorityQueue* second)
+inline _Bool prQueue_compare(const PriorityQueue* first, const PriorityQueue* second)
 {
     return linkedList_compare_list(first->list, second->list);
 }
@@ -111,47 +97,47 @@ inline void prQueue_change_capacity(PriorityQueue* q, unsigned int capacity)
     q->capacity = capacity;
 }
 
-PriorityQueue* create_prQueue(CompareFunction func, _Bool auto_growing)
+PriorityQueue* create_prQueue(CompareFunction func, _Bool auto_growing, unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
-    return setup_prQueue(func, INITIAL_DEFAULT_SIZE, auto_growing);
+    return setup_prQueue(func, INITIAL_DEFAULT_SIZE, auto_growing, object_size, destroy, to_string, equals, clone);
 }
 
-PriorityQueue* create_prQueueN(CompareFunction func, unsigned int size, _Bool auto_growing)
+PriorityQueue* create_prQueueN(CompareFunction func, unsigned int size, _Bool auto_growing, unsigned int object_size, destroyFunction destroy, to_stringFunction to_string, equalsFunction equals, cloneFunction clone)
 {
-    return setup_prQueue(func, size, auto_growing);
+    return setup_prQueue(func, size, auto_growing, object_size, destroy, to_string, equals, clone);
 }
 
-inline void* prQueue_peek_font(PriorityQueue* q)
+inline void* prQueue_peek_font(const PriorityQueue* q)
 {
     return linkedList_get_first(q->list);
 }
 
-inline void* prQueue_peek_rear(PriorityQueue* q)
+inline void* prQueue_peek_rear(const PriorityQueue* q)
 {
     return linkedList_get_last(q->list);
 }
 
-inline unsigned int prQueue_get_size(PriorityQueue* q)
+inline unsigned int prQueue_get_size(const PriorityQueue* q)
 {
     return q->size;
 }
 
-inline unsigned int prQueue_get_capacity(PriorityQueue* q)
+inline unsigned int prQueue_get_capacity(const PriorityQueue* q)
 {
     return q->capacity;
 }
 
-inline _Bool prQueue_is_full(PriorityQueue* q)
+inline _Bool prQueue_is_full(const PriorityQueue* q)
 {
     return q->size == q->capacity;
 }
 
-inline _Bool prQueue_is_empty(PriorityQueue* q)
+inline _Bool prQueue_is_empty(const PriorityQueue* q)
 {
     return q->size == 0;
 }
 
-inline _Bool prQueue_is_auto_growing(PriorityQueue* q)
+inline _Bool prQueue_is_auto_growing(const PriorityQueue* q)
 {
     return q->auto_growing;
 }

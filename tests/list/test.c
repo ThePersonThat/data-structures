@@ -16,6 +16,9 @@ int main()
     printf("Test is starting... \n\n");
     test_primitive_arrayList();
     test_object_arrayList();
+
+    printf("\n\n");
+
     test_primitive_linkedList();
     test_object_linkedList();
     printf("\nThe test was passed successfully \n");

@@ -52,6 +52,9 @@ void linkedList_sort(LinkedList* list, _Bool (compare)(void*, void*));
 static void swap(LinkedNode* a, LinkedNode* b);
 static void bubbleSort(LinkedNode* start, _Bool (compare)(void*, void*));
 
+void* LinkedList_pop_front(LinkedList* list);
+void* LinkedList_pop_back(LinkedList* list);
+
 extern void linkedList_remove_first(LinkedList* list);
 extern void linkedList_remove_last(LinkedList* list);
 

@@ -1,10 +1,6 @@
 #ifndef ARRAYLIST_H
 #define ARRAYLIST_H
 
-#define fori_arrayList(item, index, list)  \
-    for(item = list->data[index]; index < list->size; item = list->data[++index])
-
-
 typedef void (*destroyFunction) (void *); 
 typedef _Bool (*equalsFunction) (void*, void*);
 typedef void (*to_stringFunction) (void *);

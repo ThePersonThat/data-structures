@@ -130,7 +130,7 @@ void linkedList_set(LinkedList* list, unsigned int index, const void* item)
         memcpy(temp->data, item, list->object_size);
 }
 
-void* LinkedList_pop(LinkedList* list)
+void* LinkedList_pop_front(LinkedList* list)
 {
     LinkedNode* next_head = list->head->next;
     next_head->prev = NULL;
@@ -139,6 +139,20 @@ void* LinkedList_pop(LinkedList* list)
     free(list->head);
 
     list->head = next_head;
+    list->size--;
+
+    return data;
+}
+
+void* LinkedList_pop_back(LinkedList* list)
+{
+    LinkedNode* prev_tail = list->tail->prev;
+    prev_tail->next = NULL;
+    void* data = list->tail->data;
+
+    free(list->tail);
+
+    list->tail = prev_tail;
     list->size--;
 
     return data;

@@ -15,10 +15,7 @@ void test_primitive_##function_name()                                           
     type* queue = create_##function_name##N(pr_q 5, true, sizeof(int), NULL, to_string, NULL, NULL);   \
                                                                                                     \
     for(int i = 0; i < 10; i++)                                                                     \
-    {                                                                                               \
-        int number = rand() % 50;                                                                   \
-        function_name##_push(queue, &number);                                                       \
-    }                                                                                               \
+        function_name##_push(queue, &i);                                                            \
                                                                                                     \
     printf("Created auto growing %s from 0 to 9: \n", #type);                                       \
                                                                                                     \
